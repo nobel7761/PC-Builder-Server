@@ -47,7 +47,7 @@ app.get("/products", async (req, res, next) => {
     }
   } catch (error) {
     console.log("error", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Something went wrong!" });
   }
 });
 
