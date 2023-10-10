@@ -13,19 +13,6 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-app.get("/", async (req, res, next) => {
-  try {
-    res.status(200).json({
-      status: "success",
-      successCode: 200,
-      message: "Server Successfully Connected!",
-    });
-  } catch (error) {
-    console.log("error", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
 app.get("/products", async (req, res, next) => {
   try {
     await client.connect();
