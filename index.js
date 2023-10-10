@@ -4,13 +4,26 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const uri =
-  "mongodb+srv://product123:product123@cluster0.ez7qy.mongodb.net/pc-builder?retryWrites=true&w=majority";
+  "mongodb+srv://pc-builder-admin:di0EQSSG2dWaVY9T@cluster0.grizk.mongodb.net/pc-builder?retryWrites=true&w=majority";
 
 app.use(express.json());
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+});
+
+app.get("/", async (req, res, next) => {
+  try {
+    res.status(200).json({
+      status: "success",
+      successCode: 200,
+      message: "Server Successfully Connected!",
+    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 app.get("/products", async (req, res, next) => {
@@ -19,10 +32,21 @@ app.get("/products", async (req, res, next) => {
     const database = client.db("pc-builder");
     const productsCollection = database.collection("products");
 
-    const products = await productsCollection
-      .find({ category: req.query.category })
-      .toArray();
-    res.status(200).json(products);
+    // Check if a category parameter is provided
+    const category = req.query.category;
+
+    // Create a filter object based on whether a category is provided
+    const filter = category
+      ? { category: { $regex: new RegExp(category, "i") } }
+      : {};
+
+    const products = await productsCollection.find(filter).toArray();
+
+    if (products) {
+      res.status(200).json(products);
+    } else {
+      res.status(404).json({ message: "Products not found" });
+    }
   } catch (error) {
     console.log("error", error);
     res.status(500).json({ message: "Internal server error" });
@@ -36,7 +60,7 @@ app.get("/product/:id", async (req, res, next) => {
     const productsCollection = database.collection("products");
 
     const product = await productsCollection.findOne({
-      _id: new ObjectId(req.params.id)
+      _id: new ObjectId(req.params.id),
     });
 
     if (product) {
