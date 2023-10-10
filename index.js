@@ -32,10 +32,8 @@ app.get("/products", async (req, res, next) => {
     const database = client.db("pc-builder");
     const productsCollection = database.collection("products");
 
-    // Check if a category parameter is provided
     const category = req.query.category;
 
-    // Create a filter object based on whether a category is provided
     const filter = category
       ? { category: { $regex: new RegExp(category, "i") } }
       : {};
